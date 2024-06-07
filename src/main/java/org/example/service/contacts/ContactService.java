@@ -11,7 +11,7 @@ public interface ContactService {
 
     ContactDto addContact(ContactDto dto);
 
-    List<ContactDto> getAllContacts();
+    List<ContactDto> getAllContacts() throws ContactException;
 
     ContactDto deleteContactByEmail(String email) throws ContactException;
 

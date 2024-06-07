@@ -2,6 +2,7 @@ package org.example;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.ContactDto;
+import org.example.exception.ContactException;
 import org.example.service.contacts.ContactServiceImpl;
 import org.example.service.filewriter.FileWriterService;
 import org.example.service.validate.ValidateService;
@@ -49,21 +50,23 @@ public class ConsoleApplication {
         System.out.println("list - Показать список всех контактов");
         System.out.println("delete - Удалить контакт по email");
         System.out.println("save - Сохранить в файл");
-        System.out.println("exit - Завершить работу программы");
+        System.out.println("exit - Завершить работу  программы");
     }
 
     private void add() {
         System.out.println("Введите контакт в формате: Иванов Иван Иванович; +890999999; someEmail@example.example");
         String input = scanner.nextLine().strip();
         ContactDto contact = contactService.addContact(validateService.validToAdd(input));
-        System.out.println(MessageFormat.format("Контакт: \"{0}; {1}; {2}\" добавлен успешно",contact.getFullName(),contact.getTelephoneNumber(), contact.getEmail()));
+        System.out.println(MessageFormat.format("Контакт: \"{0}; {1}; {2}\" добавлен успешно", contact.getFullName(), contact.getTelephoneNumber(), contact.getEmail()));
     }
 
     private void list() {
-        List<ContactDto> contacts = contactService.getAllContacts();
-
-        if (contacts.isEmpty()) {
-            System.out.println("Список контактов пуст");
+        List<ContactDto> contacts;
+        try {
+            contacts = contactService.getAllContacts();
+        } catch (ContactException e) {
+            System.out.println(e.getMessage());
+            return;
         }
 
         System.out.println("Список всех контактов:");
@@ -71,14 +74,15 @@ public class ConsoleApplication {
     }
 
     private void save() {
-        fileWriterService.write();
-        System.out.println("Данный сохранены в файл в папке: \"data\"");
+        if (fileWriterService.write(contactService.getAllContacts())) {
+            System.out.println("Данные сохранены в файл в папке: \"data\"");
+        }
     }
 
     private void delete() {
         System.out.println("Веедите email:");
         String input = scanner.nextLine().strip();
         ContactDto contact = contactService.deleteContactByEmail(validateService.validToDelete(input));
-        System.out.println(MessageFormat.format("Контакт: \"{0}; {1}; {2}\" удалён успешно",contact.getFullName(),contact.getTelephoneNumber(), contact.getEmail()));
+        System.out.println(MessageFormat.format("Контакт: \"{0}; {1}; {2}\" удалён успешно", contact.getFullName(), contact.getTelephoneNumber(), contact.getEmail()));
     }
 }

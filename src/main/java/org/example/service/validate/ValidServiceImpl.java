@@ -7,22 +7,29 @@ import org.springframework.stereotype.Service;
 @Service
 public class ValidServiceImpl implements ValidateService {
 
-    private final String WRONG_LENGTH_MESSAGE = "Не корректный формат ввода данных";
+    private final String WRONG_LENGTH_MESSAGE = "Некорректный формат ввода данных";
 
 
     @Override
     public ContactDto validToAdd(String input) throws ValidationException {
-        String[] data = input.split(";\\s");
+        if (input == null) {
+            throw new ValidationException(WRONG_LENGTH_MESSAGE);
+        }
+
+        String[] data = input.strip().split(";\\s");
         if (data.length < 3) {
             throw new ValidationException(WRONG_LENGTH_MESSAGE);
         }
-        ContactDto contactDto = new ContactDto(validName(data[0]), validNumber(data[1]), validEmail(data[2]));
-        return contactDto;
+        return new ContactDto(validName(data[0]), validNumber(data[1]), validEmail(data[2]));
     }
 
     @Override
     public String validToDelete(String input) throws ValidationException {
-        return validEmail(input);
+        if (input == null) {
+            throw new ValidationException(WRONG_LENGTH_MESSAGE);
+        }
+
+        return validEmail(input.strip());
     }
 
     private String validName(String name) {

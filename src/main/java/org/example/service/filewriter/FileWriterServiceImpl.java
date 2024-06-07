@@ -3,6 +3,7 @@ package org.example.service.filewriter;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.ContactDto;
 import org.example.exception.FileWriterException;
+import org.example.model.Contact;
 import org.example.service.contacts.ContactService;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +17,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileWriterServiceImpl implements FileWriterService {
 
-    private final ContactService contactService;
+    private final String FILE_PATH = "data/file.txt";
 
     @Override
-    public void write() throws FileWriterException{
-        List<ContactDto> contacts = contactService.getAllContacts();
-
-        if (contacts.isEmpty()) {
+    public boolean write(List<ContactDto> contacts) throws FileWriterException{
+        if (contacts == null || contacts.isEmpty()) {
             throw new FileWriterException("Списов контактов пуст");
         }
 
@@ -31,6 +30,7 @@ public class FileWriterServiceImpl implements FileWriterService {
 
         try {
             Files.write(Path.of("data/file.txt"), data, StandardCharsets.UTF_8);
+            return true;
         } catch (IOException e) {
             throw new FileWriterException("Ошибка в записи файла");
         }

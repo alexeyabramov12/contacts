@@ -24,8 +24,12 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public List<ContactDto> getAllContacts() {
-        return repository.getAllContacts().stream().map(mapper::entityToDto).toList();
+    public List<ContactDto> getAllContacts() throws ContactException {
+        List<Contact> contactList = repository.getAllContacts();
+        if (contactList.isEmpty()) {
+            throw new ContactException("Список контактов пуст");
+        }
+        return contactList.stream().map(mapper::entityToDto).toList();
     }
 
     @Override
